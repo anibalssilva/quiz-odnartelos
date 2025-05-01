@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Quiz - ODNARTELOS</title>
+  <title>Quiz - Descobrir e Soletrar Palavra</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -31,21 +31,52 @@
       margin: 10px 5px;
       cursor: pointer;
     }
+
+    /* Modal de escolha */
+    #modoEscolha {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #modoEscolha .caixa {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+    #modoEscolha h2 {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>ODNARTELOS</h1>
-  <h2>Descubra a Palavra e Digite de Trás para Frente!</h2>
+  <!-- Modal para escolha do modo -->
+  <div id="modoEscolha">
+    <div class="caixa">
+      <h2>Como você quer digitar a palavra?</h2>
+      <button onclick="selecionarModo('normal')">🔤 Normal</button>
+      <button onclick="selecionarModo('inverso')">🔁 De Trás para Frente</button>
+    </div>
+  </div>
+
+  <h1 id="titulo">Descubra a Palavra!</h1>
 
   <div id="consoantes"></div>
 
   <div>
-    <input type="text" id="palavraDigitada" placeholder="Digite a palavra de trás para frente" />
+    <input type="text" id="palavraDigitada" placeholder="Digite aqui a palavra" />
   </div>
 
   <div>
-    <button onclick="verificarSoletracao()">✅ Verificar</button>
+    <button onclick="verificarPalavra()">✅ Verificar</button>
     <button onclick="pularPalavra()">➡️ Nova Palavra</button>
   </div>
 
@@ -56,26 +87,15 @@
 
   <script>
     const palavras = [
-            "ENGENHARIA", "HOMOLOGADO", "DESLUMBRAR", "RETROVISOR", "COMPONENTE", "LAVANDERIA",
-            "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
-            "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
-            "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR", 
-            "FUNDAMENTALISMO","LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME",
-            "CRESCER", "DRIBLAR", "ISONOMIA", "RATOEIRA", "ALICERCE", "INVASIVO",
-            "MANICURE", "OXIGENAR", "RIGOROSO", "PECULIAR", "DURADOURO", "SABEDORIA",
-            "APROXIMAR", "ARMADILHA", "BAJULADOR", "DESPOJADO", "LINGUAJAR", "PITORESCO",
-            "SAPATILHA", "VINAGRETE", "BELICHE", "BIZARRO", "CHINELO", "COLOSSO",
-            "CROMADO", "JANGADA", "MINHOCA", "RECESSO", "RUPTURA", "VISCOSO",
-            "ALFAZEMA", "EPIDERME", "OLFATIVO", "USUFRUIR", "ALVEJANTE", "ARRISCADO",
-            "BORBOLETA", "DENSIDADE", "GRAVIDADE", "HOLOGRAMA", "IMPULSIVO", "INTERFACE",
-            "PASSARELA", "RANCOROSO", "CERIMONIAL", "DELINEADOR", "MAQUINISTA", "PARAQUEDAS",
-            "FERRAMENTA", "GARGALHADA", "JORNALISMO", "LANCHONETE", "LETRAMENTO", "SEMELHANTE",
-            "APRENDIZADO", "ENGAJAMENTO", "INEXISTENTE", "INTERURBANO", "PRESSUPOSTO", "ULTRAPASSAR",
-            "CULPABILIZAR", "DIVERSIFICAR", "PREDESTINADO", "RASTREAMENTO", "INTROSPECTIVO", "MICRORGANISMO",
-            "CORRESPONDENTE", "DESLUBRAMENTO", "CATEGORICAMENTE", "SIMULTANEAMENTE"
+      "ENGENHARIA", "HOMOLOGADO", "DESLUMBRAR", "RETROVISOR", "COMPONENTE", "LAVANDERIA",
+      "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
+      "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
+      "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR",
+      "FUNDAMENTALISMO", "LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME"
     ];
 
     let palavraEscolhida = "";
+    let modo = "normal"; // ou 'inverso'
 
     function removerVogais(palavra) {
       return palavra.replace(/[AEIOU]/gi, '');
@@ -89,18 +109,27 @@
       document.getElementById('resultado').textContent = "";
     }
 
-    function verificarSoletracao() {
-      const digitado = document.getElementById('palavraDigitada').value.trim().toUpperCase();
-      const esperado = palavraEscolhida.split('').reverse().join('');
+    function verificarPalavra() {
+      const entrada = document.getElementById('palavraDigitada').value.trim().toUpperCase();
       const resultadoDiv = document.getElementById('resultado');
 
-      if (digitado === esperado) {
-        resultadoDiv.textContent = "🎉 Parabéns! Você digitou corretamente!";
+      let correto = (modo === 'inverso')
+        ? palavraEscolhida.split('').reverse().join('')
+        : palavraEscolhida;
+
+      if (entrada === correto) {
+        const msg = modo === 'inverso'
+          ? "¡!ETNEMATERROC UOTIGID ÊCOV! SNÉBARAP 🎉".split('').reverse().join('')
+          : "🎉 Parabéns! Você digitou corretamente!";
+        resultadoDiv.textContent = msg;
         resultadoDiv.style.color = "green";
         document.getElementById('somAcerto').play();
         setTimeout(() => carregarNovaPalavra(), 3000);
       } else {
-        resultadoDiv.textContent = "❌ Palavra incorreta! Tente novamente.";
+        const msg = modo === 'inverso'
+          ? ".ETNEMAVON ETNET !ATERROCNI ARVALAP ❌".split('').reverse().join('')
+          : "❌ Palavra incorreta! Tente novamente.";
+        resultadoDiv.textContent = msg;
         resultadoDiv.style.color = "red";
         document.getElementById('somErro').play();
       }
@@ -110,7 +139,23 @@
       carregarNovaPalavra();
     }
 
-    carregarNovaPalavra();
+    function selecionarModo(selecionado) {
+      modo = selecionado;
+      document.getElementById('modoEscolha').style.display = 'none';
+
+      const input = document.getElementById('palavraDigitada');
+      const titulo = document.getElementById('titulo');
+
+      input.placeholder = (modo === 'normal')
+        ? "Digite a palavra completa"
+        : "Digite a palavra de trás para frente";
+
+      titulo.textContent = (modo === 'normal')
+        ? "Descubra a Palavra!"
+        : "!ARVALAP ARETALOS E RARBUCSED";
+
+      carregarNovaPalavra();
+    }
   </script>
 
 </body>
