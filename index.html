@@ -119,16 +119,16 @@
 
       if (entrada === correto) {
         const msg = modo === 'inverso'
-          ? "!ETNEMATERROC UOTIGID ÊCOV! SNÉBARAP 🎉".split('').join('')
-          //: "🎉 Parabéns! Você digitou corretamente!";
+          ? "PARABÉNS! VOCÊ DIGITOU CORRETAMENTE! 🎉".split('').reverse().join('')
+          : "🎉 PARABÉNS! VOCÊ DIGITOU CORRETAMENTE!";
         resultadoDiv.textContent = msg;
         resultadoDiv.style.color = "green";
         document.getElementById('somAcerto').play();
         setTimeout(() => carregarNovaPalavra(), 3000);
       } else {
         const msg = modo === 'inverso'
-          ? ".ETNEMAVON ETNET !ATERROCNI ARVALAP ❌".split('').join('')
-          : "❌ Palavra incorreta! Tente novamente.";
+          ? "❌ PALAVRA INCORRETA! TENTE NOVAMENTE.".split('').reverse().join('')
+          : "❌ PALAVRA INCORRETA! TENTE NOVAMENTE.";
         resultadoDiv.textContent = msg;
         resultadoDiv.style.color = "red";
         document.getElementById('somErro').play();
