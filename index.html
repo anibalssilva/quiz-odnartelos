@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz - Descobrir e Soletrar Palavra</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #consoantes {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      font-size: 1.2em;
+      padding: 5px;
+      margin: 5px;
+      width: 300px;
+      text-align: center;
+    }
+    #letrasFaladas {
+      font-size: 2em;
+      margin: 15px auto;
+      min-height: 40px;
+      border: 1px solid #ccc;
+      width: 300px;
+      padding: 10px;
+      letter-spacing: 10px;
+    }
+    button {
+      font-size: 1.1em;
+      padding: 8px 15px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 20px;
+      font-size: 1.3em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Descubra a Palavra e Soletre de Trás para Frente!</h1>
+
+  <div id="consoantes"></div>
+
+  <div>
+    <input type="text" id="palavraDigitada" placeholder="Digite a palavra completa" />
+  </div>
+
+  <div id="letrasFaladas"></div>
+
+  <div>
+    <button onclick="verificarPalavraDigitada()">📝 Verificar Palavra</button>
+    <button onclick="iniciarReconhecimento()">🎤 Falar Letra</button>
+    <button onclick="pararReconhecimento()">🛑 Parar Voz</button>
+    <button onclick="verificarSoletracao()">✅ Verificar Soletração</button>
+    <button onclick="apagarUltimaLetra()">🗑️ Apagar Última Letra</button>
+    <button onclick="pularPalavra()">➡️ Pular Palavra</button>
+  </div>
+
+  <div id="resultado"></div>
+
+  <audio id="somAcerto" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="somErro" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+  <script>
+    const palavras = [
+      "ENGENHARIA", "HOMOLOGADO", "DESLUMBRAR", "RETROVISOR", "COMPONENTE", "LAVANDERIA",
+      "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
+      "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
+      "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR",
+      "FUNDAMENTALISMO", "LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME",
+      "CRESCER", "DRIBLAR", "ISONOMIA", "RATOEIRA", "ALICERCE", "INVASIVO",
+      "MANICURE", "OXIGENAR", "RIGOROSO", "PECULIAR", "DURADOURO", "SABEDORIA",
+      "APROXIMAR", "ARMADILHA", "BAJULADOR", "DESPOJADO", "LINGUAJAR", "PITORESCO",
+      "SAPATILHA", "VINAGRETE", "BELICHE", "BIZARRO", "CHINELO", "COLOSSO",
+      "CROMADO", "JANGADA", "MINHOCA", "RECESSO", "RUPTURA", "VISCOSO",
+      "ALFAZEMA", "EPIDERME", "OLFATIVO", "USUFRUIR", "ALVEJANTE", "ARRISCADO",
+      "BORBOLETA", "DENSIDADE", "GRAVIDADE", "HOLOGRAMA", "IMPULSIVO", "INTERFACE",
+      "PASSARELA", "RANCOROSO", "CERIMONIAL", "DELINEADOR", "MAQUINISTA", "PARAQUEDAS",
+      "FERRAMENTA", "GARGALHADA", "JORNALISMO", "LANCHONETE", "LETRAMENTO", "SEMELHANTE",
+      "APRENDIZADO", "ENGAJAMENTO", "INEXISTENTE", "INTERURBANO", "PRESSUPOSTO", "ULTRAPASSAR",
+      "CULPABILIZAR", "DIVERSIFICAR", "PREDESTINADO", "RASTREAMENTO", "INTROSPECTIVO", "MICRORGANISMO",
+      "CORRESPONDENTE", "DESLUBRAMENTO", "CATEGORICAMENTE", "SIMULTANEAMENTE"
+    ];
+
+    let palavraEscolhida = "";
+    let letrasFaladas = [];
+    let recognition;
+
+    function removerVogais(palavra) {
+      return palavra.replace(/[AEIOU]/gi, '');
+    }
+
+    function carregarNovaPalavra() {
+      const indice = Math.floor(Math.random() * palavras.length);
+      palavraEscolhida = palavras[indice];
+      document.getElementById('consoantes').textContent = removerVogais(palavraEscolhida);
+      document.getElementById('palavraDigitada').value = "";
+      letrasFaladas = [];
+      atualizarCampoLetras();
+      document.getElementById('resultado').textContent = "";
+    }
+
+    function atualizarCampoLetras() {
+      document.getElementById('letrasFaladas').textContent = letrasFaladas.join('');
+    }
+
+    function iniciarReconhecimento() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Reconhecimento de voz não é suportado neste navegador.');
+        return;
+      }
+
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = 'pt-BR';
+      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const results = event.results;
+        const ultimaFala = results[results.length - 1][0].transcript.trim().toUpperCase();
+
+        // Filtro: só permitir letras de A-Z
+        const letraValida = ultimaFala.replace(/[^A-Z]/g, '');
+        if (letraValida.length > 0) {
+          letrasFaladas.push(letraValida[0]);
+          atualizarCampoLetras();
+        }
+      };
+
+      recognition.onerror = function(event) {
+        console.error('Erro no reconhecimento de voz:', event.error);
+      };
+    }
+
+    function pararReconhecimento() {
+      if (recognition) {
+        recognition.stop();
+      }
+    }
+
+    function verificarPalavraDigitada() {
+      const palavraDigitada = document.getElementById('palavraDigitada').value.trim().toUpperCase();
+      const resultadoDiv = document.getElementById('resultado');
+
+      if (palavraDigitada === palavraEscolhida) {
+        resultadoDiv.textContent = "✅ Palavra correta! Agora soletre de trás para frente!";
+        resultadoDiv.style.color = "green";
+        document.getElementById('somAcerto').play();
+      } else {
+        resultadoDiv.textContent = `❌ Palavra errada!`;
+        resultadoDiv.style.color = "red";
+        document.getElementById('somErro').play();
+      }
+    }
+
+    function verificarSoletracao() {
+      const palavraEsperadaInvertida = palavraEscolhida.split('').reverse().join('');
+      const palavraMontada = letrasFaladas.join('');
+      const resultadoDiv = document.getElementById('resultado');
+
+      if (palavraMontada === palavraEsperadaInvertida) {
+        resultadoDiv.textContent = "🎉 Parabéns! Você soletrou corretamente!";
+        resultadoDiv.style.color = "green";
+        document.getElementById('somAcerto').play();
+        setTimeout(() => carregarNovaPalavra(), 3000);
+      } else {
+        resultadoDiv.textContent = `❌ Erro na soletração!`;
+        resultadoDiv.style.color = "red";
+        document.getElementById('somErro').play();
+      }
+    }
+
+    function apagarUltimaLetra() {
+      letrasFaladas.pop();
+      atualizarCampoLetras();
+    }
+
+    function pularPalavra() {
+      carregarNovaPalavra();
+      pararReconhecimento();
+    }
+
+    // Carrega a primeira palavra
+    carregarNovaPalavra();
+  </script>
+
+</body>
+</html>
