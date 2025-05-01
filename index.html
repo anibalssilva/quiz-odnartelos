@@ -119,7 +119,7 @@
 
       if (entrada === correto) {
         const msg = modo === 'inverso'
-          ? "¡!ETNEMATERROC UOTIGID ÊCOV! SNÉBARAP 🎉".split('').reverse().join('')
+          ? "!ETNEMATERROC UOTIGID ÊCOV! SNÉBARAP 🎉".split('').join('')
           : "🎉 Parabéns! Você digitou corretamente!";
         resultadoDiv.textContent = msg;
         resultadoDiv.style.color = "green";
@@ -127,7 +127,7 @@
         setTimeout(() => carregarNovaPalavra(), 3000);
       } else {
         const msg = modo === 'inverso'
-          ? ".ETNEMAVON ETNET !ATERROCNI ARVALAP ❌".split('').reverse().join('')
+          ? ".ETNEMAVON ETNET !ATERROCNI ARVALAP ❌".split('').join('')
           : "❌ Palavra incorreta! Tente novamente.";
         resultadoDiv.textContent = msg;
         resultadoDiv.style.color = "red";
@@ -151,8 +151,8 @@
         : "Digite a palavra de trás para frente";
 
       titulo.textContent = (modo === 'normal')
-        ? "Descubra a Palavra!"
-        : "!ARVALAP ARETALOS E RARBUCSED";
+        ? "DESCUBRA A PALAVRA E SOLETRE!"
+        : "!ERTELOS E ARVALAP A ARBUCSED";
 
       carregarNovaPalavra();
     }
