@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Quiz - Descobrir e Soletrar Palavra</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -74,24 +75,11 @@
       "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
       "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
       "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR",
-      "FUNDAMENTALISMO", "LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME",
-      "CRESCER", "DRIBLAR", "ISONOMIA", "RATOEIRA", "ALICERCE", "INVASIVO",
-      "MANICURE", "OXIGENAR", "RIGOROSO", "PECULIAR", "DURADOURO", "SABEDORIA",
-      "APROXIMAR", "ARMADILHA", "BAJULADOR", "DESPOJADO", "LINGUAJAR", "PITORESCO",
-      "SAPATILHA", "VINAGRETE", "BELICHE", "BIZARRO", "CHINELO", "COLOSSO",
-      "CROMADO", "JANGADA", "MINHOCA", "RECESSO", "RUPTURA", "VISCOSO",
-      "ALFAZEMA", "EPIDERME", "OLFATIVO", "USUFRUIR", "ALVEJANTE", "ARRISCADO",
-      "BORBOLETA", "DENSIDADE", "GRAVIDADE", "HOLOGRAMA", "IMPULSIVO", "INTERFACE",
-      "PASSARELA", "RANCOROSO", "CERIMONIAL", "DELINEADOR", "MAQUINISTA", "PARAQUEDAS",
-      "FERRAMENTA", "GARGALHADA", "JORNALISMO", "LANCHONETE", "LETRAMENTO", "SEMELHANTE",
-      "APRENDIZADO", "ENGAJAMENTO", "INEXISTENTE", "INTERURBANO", "PRESSUPOSTO", "ULTRAPASSAR",
-      "CULPABILIZAR", "DIVERSIFICAR", "PREDESTINADO", "RASTREAMENTO", "INTROSPECTIVO", "MICRORGANISMO",
-      "CORRESPONDENTE", "DESLUBRAMENTO", "CATEGORICAMENTE", "SIMULTANEAMENTE"
+      "FUNDAMENTALISMO", "LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME"
     ];
 
     let palavraEscolhida = "";
     let letrasFaladas = [];
-    let recognition;
 
     function removerVogais(palavra) {
       return palavra.replace(/[AEIOU]/gi, '');
@@ -112,39 +100,28 @@
     }
 
     function iniciarReconhecimento() {
-      if (!('webkitSpeechRecognition' in window)) {
-        alert('Reconhecimento de voz não é suportado neste navegador.');
-        return;
+      if (annyang) {
+        const comandos = {
+          '*letra': function(letra) {
+            letra = letra.toUpperCase().replace(/[^A-Z]/g, '');
+            if (letra.length > 0) {
+              letrasFaladas.push(letra[0]);
+              atualizarCampoLetras();
+            }
+          }
+        };
+        annyang.removeCommands();
+        annyang.addCommands(comandos);
+        annyang.setLanguage('pt-BR');
+        annyang.start({ autoRestart: true, continuous: true });
+      } else {
+        alert("Reconhecimento de voz não suportado.");
       }
-
-      recognition = new webkitSpeechRecognition();
-      recognition.lang = 'pt-BR';
-      recognition.interimResults = false;
-      recognition.continuous = true;
-      recognition.maxAlternatives = 1;
-
-      recognition.start();
-
-      recognition.onresult = function(event) {
-        const results = event.results;
-        const ultimaFala = results[results.length - 1][0].transcript.trim().toUpperCase();
-
-        // Filtro: só permitir letras de A-Z
-        const letraValida = ultimaFala.replace(/[^A-Z]/g, '');
-        if (letraValida.length > 0) {
-          letrasFaladas.push(letraValida[0]);
-          atualizarCampoLetras();
-        }
-      };
-
-      recognition.onerror = function(event) {
-        console.error('Erro no reconhecimento de voz:', event.error);
-      };
     }
 
     function pararReconhecimento() {
-      if (recognition) {
-        recognition.stop();
+      if (annyang) {
+        annyang.abort();
       }
     }
 
@@ -157,7 +134,7 @@
         resultadoDiv.style.color = "green";
         document.getElementById('somAcerto').play();
       } else {
-        resultadoDiv.textContent = `❌ Palavra errada!`;
+        resultadoDiv.textContent = "❌ Palavra errada!";
         resultadoDiv.style.color = "red";
         document.getElementById('somErro').play();
       }
@@ -174,7 +151,7 @@
         document.getElementById('somAcerto').play();
         setTimeout(() => carregarNovaPalavra(), 3000);
       } else {
-        resultadoDiv.textContent = `❌ Erro na soletração!`;
+        resultadoDiv.textContent = "❌ Erro na soletração!";
         resultadoDiv.style.color = "red";
         document.getElementById('somErro').play();
       }
@@ -190,7 +167,6 @@
       pararReconhecimento();
     }
 
-    // Carrega a primeira palavra
     carregarNovaPalavra();
   </script>
 
