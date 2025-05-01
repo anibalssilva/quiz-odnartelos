@@ -1,174 +1,114 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Quiz - Descobrir e Soletrar Palavra</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    #consoantes {
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      font-size: 1.2em;
-      padding: 5px;
-      margin: 5px;
-      width: 300px;
-      text-align: center;
-    }
-    #letrasFaladas {
-      font-size: 2em;
-      margin: 15px auto;
-      min-height: 40px;
-      border: 1px solid #ccc;
-      width: 300px;
-      padding: 10px;
-      letter-spacing: 10px;
-    }
-    button {
-      font-size: 1.1em;
-      padding: 8px 15px;
-      margin: 10px 5px;
-      cursor: pointer;
-    }
-    #resultado {
-      margin-top: 20px;
-      font-size: 1.3em;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Quiz de Consoantes - 3 Tentativas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 80px;
+        }
+        #palavra {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            font-size: 1.2em;
+            padding: 5px;
+            width: 300px;
+            text-align: center;
+        }
+        button {
+            font-size: 1.2em;
+            padding: 8px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #resultado {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Descubra a Palavra e Soletre de Trás para Frente!</h1>
+    <h1>Descubra a Palavra!</h1>
+    <div id="palavra"></div>
 
-  <div id="consoantes"></div>
+    <input type="text" id="resposta" placeholder="Digite a palavra completa" />
+    <br>
+    <button onclick="verificarResposta()">Verificar</button>
 
-  <div>
-    <input type="text" id="palavraDigitada" placeholder="Digite a palavra completa" />
-  </div>
+    <div id="resultado"></div>
 
-  <div id="letrasFaladas"></div>
+    <script>
+        const palavras = [
+            "ENGENHARIA", "HOMOLOGADO", "DESLUMBRAR", "RETROVISOR", "COMPONENTE", "LAVANDERIA",
+            "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
+            "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
+            "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR", 
+            "FUNDAMENTALISMO","LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME",
+            "CRESCER", "DRIBLAR", "ISONOMIA", "RATOEIRA", "ALICERCE", "INVASIVO",
+            "MANICURE", "OXIGENAR", "RIGOROSO", "PECULIAR", "DURADOURO", "SABEDORIA",
+            "APROXIMAR", "ARMADILHA", "BAJULADOR", "DESPOJADO", "LINGUAJAR", "PITORESCO",
+            "SAPATILHA", "VINAGRETE", "BELICHE", "BIZARRO", "CHINELO", "COLOSSO",
+            "CROMADO", "JANGADA", "MINHOCA", "RECESSO", "RUPTURA", "VISCOSO",
+            "ALFAZEMA", "EPIDERME", "OLFATIVO", "USUFRUIR", "ALVEJANTE", "ARRISCADO",
+            "BORBOLETA", "DENSIDADE", "GRAVIDADE", "HOLOGRAMA", "IMPULSIVO", "INTERFACE",
+            "PASSARELA", "RANCOROSO", "CERIMONIAL", "DELINEADOR", "MAQUINISTA", "PARAQUEDAS",
+            "FERRAMENTA", "GARGALHADA", "JORNALISMO", "LANCHONETE", "LETRAMENTO", "SEMELHANTE",
+            "APRENDIZADO", "ENGAJAMENTO", "INEXISTENTE", "INTERURBANO", "PRESSUPOSTO", "ULTRAPASSAR",
+            "CULPABILIZAR", "DIVERSIFICAR", "PREDESTINADO", "RASTREAMENTO", "INTROSPECTIVO", "MICRORGANISMO",
+            "CORRESPONDENTE", "DESLUBRAMENTO", "CATEGORICAMENTE", "SIMULTANEAMENTE"
+        ];
 
-  <div>
-    <button onclick="verificarPalavraDigitada()">📝 Verificar Palavra</button>
-    <button onclick="iniciarReconhecimento()">🎤 Falar Letra</button>
-    <button onclick="pararReconhecimento()">🛑 Parar Voz</button>
-    <button onclick="verificarSoletracao()">✅ Verificar Soletração</button>
-    <button onclick="apagarUltimaLetra()">🗑️ Apagar Última Letra</button>
-    <button onclick="pularPalavra()">➡️ Pular Palavra</button>
-  </div>
+        let palavraEscolhida = "";
+        let tentativas = 0;
+        const maxTentativas = 3;
+        
+        function removerVogais(palavra) {
+            return palavra.replace(/[AEIOU]/gi, '');
+        }
 
-  <div id="resultado"></div>
+        function carregarPalavra() {
+            const indice = Math.floor(Math.random() * palavras.length);
+            palavraEscolhida = palavras[indice];
+            const palavraSemVogais = removerVogais(palavraEscolhida);
 
-  <audio id="somAcerto" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-  <audio id="somErro" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+            document.getElementById('palavra').textContent = palavraSemVogais;
+            document.getElementById('resposta').value = "";
+            document.getElementById('resultado').textContent = "";
+            tentativas = 0;
+        }
 
-  <script>
-    const palavras = [
-      "ENGENHARIA", "HOMOLOGADO", "DESLUMBRAR", "RETROVISOR", "COMPONENTE", "LAVANDERIA",
-      "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
-      "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
-      "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR",
-      "FUNDAMENTALISMO", "LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME"
-    ];
+        function verificarResposta() {
+            const respostaUsuario = document.getElementById('resposta').value.trim().toUpperCase();
+            const resultadoDiv = document.getElementById('resultado');
 
-    let palavraEscolhida = "";
-    let letrasFaladas = [];
-
-    function removerVogais(palavra) {
-      return palavra.replace(/[AEIOU]/gi, '');
-    }
-
-    function carregarNovaPalavra() {
-      const indice = Math.floor(Math.random() * palavras.length);
-      palavraEscolhida = palavras[indice];
-      document.getElementById('consoantes').textContent = removerVogais(palavraEscolhida);
-      document.getElementById('palavraDigitada').value = "";
-      letrasFaladas = [];
-      atualizarCampoLetras();
-      document.getElementById('resultado').textContent = "";
-    }
-
-    function atualizarCampoLetras() {
-      document.getElementById('letrasFaladas').textContent = letrasFaladas.join('');
-    }
-
-    function iniciarReconhecimento() {
-      if (annyang) {
-        const comandos = {
-          '*letra': function(letra) {
-            letra = letra.toUpperCase().replace(/[^A-Z]/g, '');
-            if (letra.length > 0) {
-              letrasFaladas.push(letra[0]);
-              atualizarCampoLetras();
+            if (respostaUsuario === palavraEscolhida) {
+                resultadoDiv.textContent = "🎉 Parabéns! Você acertou!";
+                resultadoDiv.style.color = "green";
+                setTimeout(() => carregarPalavra(), 2000);
+            } else {
+                tentativas++;
+                if (tentativas < maxTentativas) {
+                    resultadoDiv.textContent = `❗ Tente outra vez! Tentativa ${tentativas}/${maxTentativas}`;
+                    resultadoDiv.style.color = "orange";
+                    document.getElementById('resposta').value = "";
+                    document.getElementById('resposta').focus();
+                } else {
+                    resultadoDiv.textContent = `❌ Você errou! A palavra correta era: ${palavraEscolhida}`;
+                    resultadoDiv.style.color = "red";
+                    setTimeout(() => carregarPalavra(), 3000);
+                }
             }
-          }
-        };
-        annyang.removeCommands();
-        annyang.addCommands(comandos);
-        annyang.setLanguage('pt-BR');
-        annyang.start({ autoRestart: true, continuous: true });
-      } else {
-        alert("Reconhecimento de voz não suportado.");
-      }
-    }
+        }
 
-    function pararReconhecimento() {
-      if (annyang) {
-        annyang.abort();
-      }
-    }
-
-    function verificarPalavraDigitada() {
-      const palavraDigitada = document.getElementById('palavraDigitada').value.trim().toUpperCase();
-      const resultadoDiv = document.getElementById('resultado');
-
-      if (palavraDigitada === palavraEscolhida) {
-        resultadoDiv.textContent = "✅ Palavra correta! Agora soletre de trás para frente!";
-        resultadoDiv.style.color = "green";
-        document.getElementById('somAcerto').play();
-      } else {
-        resultadoDiv.textContent = "❌ Palavra errada!";
-        resultadoDiv.style.color = "red";
-        document.getElementById('somErro').play();
-      }
-    }
-
-    function verificarSoletracao() {
-      const palavraEsperadaInvertida = palavraEscolhida.split('').reverse().join('');
-      const palavraMontada = letrasFaladas.join('');
-      const resultadoDiv = document.getElementById('resultado');
-
-      if (palavraMontada === palavraEsperadaInvertida) {
-        resultadoDiv.textContent = "🎉 Parabéns! Você soletrou corretamente!";
-        resultadoDiv.style.color = "green";
-        document.getElementById('somAcerto').play();
-        setTimeout(() => carregarNovaPalavra(), 3000);
-      } else {
-        resultadoDiv.textContent = "❌ Erro na soletração!";
-        resultadoDiv.style.color = "red";
-        document.getElementById('somErro').play();
-      }
-    }
-
-    function apagarUltimaLetra() {
-      letrasFaladas.pop();
-      atualizarCampoLetras();
-    }
-
-    function pularPalavra() {
-      carregarNovaPalavra();
-      pararReconhecimento();
-    }
-
-    carregarNovaPalavra();
-  </script>
+        // Carrega a primeira palavra ao abrir a página
+        carregarPalavra();
+    </script>
 
 </body>
 </html>
