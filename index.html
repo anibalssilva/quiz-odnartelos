@@ -13,6 +13,12 @@
       font-size: 2em;
       margin-bottom: 20px;
     }
+    #contadorPalavras{
+      font-size:1.1em;
+      margin-bottom:20px;
+      font-weight:bold;
+      display:none; /* oculto até o usuário pedir */
+    }
     input[type="text"] {
       font-size: 1.2em;
       padding: 5px;
@@ -70,6 +76,8 @@
   <h1 id="titulo">DESCUBRA A PALAVRA E SOLETRE DE TRÁS PARA FRENTE!</h1>
 
   <div id="consoantes"></div>
+  <div id="contadorPalavras">Palavras: 0</div>
+  <button id="botaoRevela" onclick="revelarContador()">👁️ Revele a Quantidade</button>
 
   <div>
     <input type="text" id="palavraDigitada" placeholder="Digite aqui a palavra" />
@@ -87,32 +95,20 @@
 
   <script>
     const palavras = [
-      "ENGENHARIA", "HOMOLOGADO", "DESLUMBRAR", "RETROVISOR", "COMPONENTE", "LAVANDERIA",
-      "DISSIMULADO", "FACULTATIVO", "HOSTILIDADE", "VERTIGINOSO", "TRAVESSEIRO", "INTERRUPTOR",
-      "DESUMANIDADE", "INSATISFEITO", "EMBORRACHADO", "ESCRIVANINHA", "FLEXIBILIDADE", "SUBJETIVIDADE",
-      "COMPORTAMENTO", "CONTRAPARTIDA", "DESPRETENSIOSO", "PERFECCIONISTA", "EXTRACURRICULAR",
-      "FUNDAMENTALISMO", "LAVOURA", "TIRANIA", "CATARSE", "DESPESA", "REPULSA", "SUBLIME",
-      "CRESCER", "DRIBLAR", "ISONOMIA", "RATOEIRA", "ALICERCE", "INVASIVO",
-      "MANICURE", "OXIGENAR", "RIGOROSO", "PECULIAR", "DURADOURO", "SABEDORIA",
-      "APROXIMAR", "ARMADILHA", "BAJULADOR", "DESPOJADO", "LINGUAJAR", "PITORESCO",
-      "SAPATILHA", "VINAGRETE", "BELICHE", "BIZARRO", "CHINELO", "COLOSSO",
-      "CROMADO", "JANGADA", "MINHOCA", "RECESSO", "RUPTURA", "VISCOSO",
-      "ALFAZEMA", "EPIDERME", "OLFATIVO", "USUFRUIR", "ALVEJANTE", "ARRISCADO",
-      "BORBOLETA", "DENSIDADE", "GRAVIDADE", "HOLOGRAMA", "IMPULSIVO", "INTERFACE",
-      "PASSARELA", "RANCOROSO", "CERIMONIAL", "DELINEADOR", "MAQUINISTA", "PARAQUEDAS",
-      "FERRAMENTA", "GARGALHADA", "JORNALISMO", "LANCHONETE", "LETRAMENTO", "SEMELHANTE",
-      "APRENDIZADO", "ENGAJAMENTO", "INEXISTENTE", "INTERURBANO", "PRESSUPOSTO", "ULTRAPASSAR",
-      "CULPABILIZAR", "DIVERSIFICAR", "PREDESTINADO", "RASTREAMENTO", "INTROSPECTIVO", "MICRORGANISMO",
-      "CORRESPONDENTE", "DESLUBRAMENTO", "CATEGORICAMENTE", "SIMULTANEAMENTE"
-
+      "ALCUNHA", "CADEIRA", "CHAMINÉ", "DIGITAL", "EMPATIA", "EPÍLOGO", "ESTIRPE", "FÁBRICA", 	"LIXEIRA", "PARÓDIA", "RECREIO", "VIRTUDE", "OXÍMETRO", "PARAFUSO", "PRÓSPERO", "VIRTUOSO", 	"ARGAMASSA", "BENEFÍCIO", "BURGUESIA", "ESCADARIA", "INTERESSE", "SONÂMBULO", "SUPÉRFLUO", 	"UTENSÍLIO", "ARTIFICIAL", "CENTRÍFUGA", "DILIGÊNCIA", "ESCRITÓRIO", "EXISTÊNCIA", 	"FATALIDADE", "FISIOLOGIA", "GERIÁTRICO", "PIPOQUEIRA", "PRIMAVERIL", "SUSCETÍVEL", 		"VENTILADOR", "ADVERTÊNCIA", "BORRACHEIRO", "IMPLICÂNCIA", "TONALIZANTE", "ANTIALÉRGICO", 	"INVESTIMENTO", "MISERICÓRDIA", "PLANEJAMENTO", "CALEIDOSCÓPIO", "ESPALHAFATOSO", 	"EXCLUSIVIDADE", "MEGALOMANÍACO", "ANTROPOCÊNTRICO", "CORRESPONDÊNCIA"
     ];
 
     let palavraEscolhida = "";
     let modo = "normal"; // ou 'inverso'
+    let contadorPalavras = 0;
+
+    function atualizarContador(){
+      document.getElementById('contadorPalavras').textContent = `Palavras: ${contadorPalavras}`;
+    }
 
     function removerVogais(palavra) {
-      return palavra.replace(/[AEIOU]/gi, '');
-    }
+  	return palavra.replace(/[AEIOUÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜaeiouáàâãäéèêëíìîïóòôõöúùûü]/g, '');
+	}
 
     function carregarNovaPalavra() {
       const indice = Math.floor(Math.random() * palavras.length);
@@ -120,6 +116,8 @@
       document.getElementById('consoantes').textContent = removerVogais(palavraEscolhida);
       document.getElementById('palavraDigitada').value = "";
       document.getElementById('resultado').textContent = "";
+      contadorPalavras++;
+      atualizarContador();
     }
 
     function verificarPalavra() {
@@ -152,6 +150,11 @@
       carregarNovaPalavra();
     }
 
+    function revelarContador(){
+      document.getElementById('contadorPalavras').style.display = 'block';
+      document.getElementById('botaoRevela').style.display = 'none';
+    }
+
     function selecionarModo(selecionado) {
       modo = selecionado;
       document.getElementById('modoEscolha').style.display = 'none';
@@ -167,6 +170,10 @@
         ? "DESCUBRA A PALAVRA E SOLETRE DE TRÁS PARA FRENTE!"
         : "!ETNERF ARAP SÀRT ED ERTELOS E ARVALAP A ARBUCSED";
 
+      contadorPalavras = 0;
+      atualizarContador();
+      document.getElementById('contadorPalavras').style.display = 'none';
+      document.getElementById('botaoRevela').style.display = 'inline-block';
       carregarNovaPalavra();
     }
   </script>
